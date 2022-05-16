@@ -1,0 +1,22 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: refresh aws credentials for Docker connection
+      run: aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+    - name: Build the Docker image
+      run: docker build --tag $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/my-first-ecr-repo:1.7 . 
+    - name: Push the Docker image
+      run: docker push --tag $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/my-first-ecr-repo:1.7 . 
