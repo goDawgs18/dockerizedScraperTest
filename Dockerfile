@@ -1,55 +1,30 @@
-FROM python:3.9-slim-buster
+# FROM public.ecr.aws/lambda/python@sha256:75dd3378f9733d43f4a4b6a02c237512e0c6de583464f7abf4c4507aec90cf48 as build
+# RUN yum install -y unzip && \
+#     curl -Lo "/tmp/chromedriver.zip" "https://chromedriver.storage.googleapis.com/101.0.4951.41/chromedriver_linux64.zip" && \
+#     curl -Lo "/tmp/chrome-linux.zip" "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F982481%2Fchrome-linux.zip?alt=media" && \
+#     unzip /tmp/chromedriver.zip -d /opt/ && \
+#     unzip /tmp/chrome-linux.zip -d /opt/
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+FROM public.ecr.aws/lambda/python:3.9
+# RUN pip install selenium
+RUN yum install -y unzip && \
+    curl -Lo "/tmp/chromedriver.zip" "https://chromedriver.storage.googleapis.com/101.0.4951.41/chromedriver_linux64.zip" && \
+    curl -Lo "/tmp/chrome-linux.zip" "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F982481%2Fchrome-linux.zip?alt=media" && \
+    unzip /tmp/chromedriver.zip -d /opt/ && \
+    unzip /tmp/chrome-linux.zip -d /opt/
 
-# ENV FLASK_APP=app.py
-# ENV FLASK_ENV=development
+RUN yum install atk cups-libs gtk3 libXcomposite alsa-lib \
+    libXcursor libXdamage libXext libXi libXrandr libXScrnSaver \
+    libXtst pango at-spi2-atk libXt xorg-x11-server-Xvfb \
+    xorg-x11-xauth dbus-glib dbus-glib-devel -y
 
-# install system dependencies
-RUN apt-get update \
-    && apt-get -y install gcc make \
-    && rm -rf /var/lib/apt/lists/*s \
-    && apt-get install -y curl unzip xvfb libxi6 libgconf-2-4 \
-    && apt-get clean
 
-# install jdk
-RUN apt-get install default-jdk --assume-yes \
-    && apt-get clean
+# COPY --from=build /opt/chrome-linux /opt/chrome
+# COPY --from=build /opt/chromedriver /opt/
+COPY . .
 
-# install commands for pulling in chrome
-RUN apt-get update \
-    && apt-get install wget --assume-yes \
-    && apt-get install gnupg2 --assume-yes \
-    && apt-get clean
-
-# install google chrome
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-RUN sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
-RUN apt-get -y update
-RUN apt-get install -y google-chrome-stable \
-    && apt-get clean
-
-# install chromedriver
-RUN apt-get install -yqq unzip \
-    && apt-get clean
-RUN wget -O /tmp/chromedriver.zip http://chromedriver.storage.googleapis.com/`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE`/chromedriver_linux64.zip
-RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
-
-RUN python3 --version
-RUN pip3 --version
-
-RUN pip install --no-cache-dir --upgrade pip
-
-WORKDIR /app
-
-COPY ./requirements.txt /app/requirements.txt
+RUN yum install tree -y && tree /opt && tree .
 
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-COPY . .
-
-# EXPOSE 8080
-
-# CMD ["gunicorn", "--bind", "0.0.0.0:8080","--timeout", "90", "app:app"]
-CMD ["python3", "v5.py"]
+CMD [ "v5.handler" ]
