@@ -17,8 +17,8 @@ jobs:
     - name: test injection
       run: echo ${{ secrets.AWS_REGION }}
     - name: refresh aws credentials for Docker connection
-      run: aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      run: aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 116515497742.dkr.ecr.us-east-2.amazonaws.com
     - name: Build the Docker image
-      run: docker build --tag $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/my-first-ecr-repo:1.7 . 
+      run: docker build --tag 116515497742.dkr.ecr.us-east-2.amazonaws.com/my-first-ecr-repo:1.7 . 
     - name: Push the Docker image
-      run: docker push --tag $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/my-first-ecr-repo:1.7 . 
+      run: docker push --tag 116515497742.dkr.ecr.us-east-2.amazonaws.com/my-first-ecr-repo:1.7 . 
