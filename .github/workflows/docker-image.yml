@@ -29,4 +29,4 @@ jobs:
     - name: Build the Docker image
       run: docker build --tag ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/my-first-ecr-repo:1.7 . 
     - name: Push the Docker image
-      run: docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/my-first-ecr-repo:1.7 . 
+      run: docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/my-first-ecr-repo:1.7
